@@ -3,7 +3,7 @@
  * @author your name (you@domain.com)
  * @brief 
  * @version 0.1
- * @date 2024-01-23
+ * @date 2024-01-25
  * 
  * @copyright Copyright (c) 2024
  * 
@@ -19,7 +19,7 @@
 
 #include <matplot/matplot.h>
 
-#include "motion_profile_generators/trapezoidal_profile.hpp"
+#include "motion_profile_generators/scurve_profile.hpp"
 
 #define _PLOT_DATA
 
@@ -46,23 +46,22 @@ TEST(TrapezoidalMotionProfileTest, FloatingPointReferenceTest)
     }
 
     const double target = 1.0;
-    double max_vel = 0.25;
+    double max_vel = 1.0;
     const double max_acc = 0.5;
+    MotionConstraints<double> constraints = {max_vel, max_acc, max_acc, 2.0};
+    const auto times = scurve_profile::calculateSCurveOperationTimes<double, double>(target, constraints);
 
-    const auto times = trapezoidal_profile::calculateTrapeozidalOperationsTimes<double, double>(target, max_vel, max_acc);
-
-    
-    std::cout << "tAcc: " << times.getAccelerationDuration() << " tConstVel: " << times.getConstantVelocityDuration() << " tDec: " << times.getDecelerationTime() << std::endl;
+    std::cout << "Total profile duration: " << times.getTotalTime() << std::endl;
     
     MotionProfileReference<double> reference = {};
     double distanceTraveledViaReferences = 0.0;
     using namespace std::chrono_literals;
     const auto profileStartTime = std::chrono::high_resolution_clock::now();
     auto updateTimePoint = profileStartTime;
-    MotionConstraints<double> constraints = {max_vel, max_acc, max_acc, 0.0};
-    while(inRange(distanceTraveledViaReferences, target, 0.0001))
+/*     auto prevUpdateTime = updateTimePoint;
+ */    while(inRange(distanceTraveledViaReferences, target, 0.0001))
     {
-        auto newRef = trapezoidal_profile::generateReference<double, double, std::chrono::high_resolution_clock, std::ratio<1>>(
+        auto newRef = scurve_profile::generateReference<double, double, std::chrono::high_resolution_clock, std::ratio<1>>(
             reference,
             target,
             constraints,
@@ -73,9 +72,12 @@ TEST(TrapezoidalMotionProfileTest, FloatingPointReferenceTest)
 
         if(newRef){
             reference = newRef.value();
-            distanceTraveledViaReferences = reference.position;
+/*             distanceTraveledViaReferences += reference.velocity * std::chrono::duration_cast<std::chrono::duration<double>>((updateTimePoint - prevUpdateTime)).count();
+ */            
+            distanceTraveledViaReferences += reference.position;
             std::cout << distanceTraveledViaReferences << " " << reference.velocity << std::endl;
-            if constexpr (plot_data)
+/*             std::cout << distanceTraveledViaReferences << " " << reference.velocity << std::endl;
+ */         if constexpr (plot_data)
             {
                 dataToPlot->at("positions").push_back(distanceTraveledViaReferences);
                 dataToPlot->at("velocities").push_back(reference.velocity);
@@ -88,7 +90,7 @@ TEST(TrapezoidalMotionProfileTest, FloatingPointReferenceTest)
             break;
         }
 
-        std::this_thread::sleep_for(2ms);
+        std::this_thread::sleep_for(4ms);
 
     }
 

@@ -173,7 +173,6 @@ namespace motion_profile_generators
             else if(timeElapsedSinceProfileStarted >= times.getAccelerationDuration() + times.getConstantVelocityDuration())
             {
                 double decDur = timeElapsedSinceProfileStarted - (times.getAccelerationDuration() + times.getConstantVelocityDuration());
-                std::cout << "Dec dur:" << decDur << std::endl;
                 newReference.position = dConstVel + (decDur * motion_constraints.max_increment) - (0.5 * motion_constraints.acceleration * (decDur * decDur));
                 newReference.velocity = previous_reference.velocity - (motion_constraints.deacceleration * elapsedTime);
                 newReference.acceleration = -motion_constraints.acceleration;

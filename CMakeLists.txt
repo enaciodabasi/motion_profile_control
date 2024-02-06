@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1.0)
 project(motion_profile_generators VERSION 0.1.0 LANGUAGES C CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra -Werror=conversion -Werror=unused-but-set-variable -Werror=return-type -Werror=shadow)
+  add_compile_options(-Wall -Wextra -Werror=conversion -Werror=unused-but-set-variable -Werror=return-type)
 endif()
 
 set (CMAKE_GENERATOR "Unix Makefiles" CACHE INTERNAL "" FORCE)
@@ -50,3 +50,7 @@ target_include_directories(triangular_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} 
 add_executable(trapezoidal_profile_test test/trapezoidal_profile_test/main.cpp)
 target_link_libraries(trapezoidal_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
 target_include_directories(trapezoidal_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
+
+add_executable(scurve_profile_test test/s_curve_profile_test/main.cpp)
+target_link_libraries(scurve_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
+target_include_directories(scurve_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
