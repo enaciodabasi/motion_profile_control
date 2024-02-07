@@ -43,6 +43,7 @@ TEST(TrapezoidalMotionProfileTest, FloatingPointReferenceTest)
         (*dataToPlot)["velocities"] = std::vector<double>();
         (*dataToPlot)["positions"] = std::vector<double>();
         (*dataToPlot)["timestamps"] = std::vector<double>();
+        (*dataToPlot)["accelerations"] = std::vector<double>();
     }
 
     const double target = 1.0;
@@ -81,6 +82,7 @@ TEST(TrapezoidalMotionProfileTest, FloatingPointReferenceTest)
             {
                 dataToPlot->at("positions").push_back(distanceTraveledViaReferences);
                 dataToPlot->at("velocities").push_back(reference.velocity);
+                dataToPlot->at("accelerations").push_back(reference.acceleration);
                 auto timeElapsed = std::chrono::duration_cast<std::chrono::duration<double>>((std::chrono::high_resolution_clock::now() - profileStartTime));
                 dataToPlot->at("timestamps").push_back(timeElapsed.count());
             }
@@ -106,10 +108,11 @@ TEST(TrapezoidalMotionProfileTest, FloatingPointReferenceTest)
     {
         matplot::plot(
             dataToPlot->at("timestamps"), dataToPlot->at("positions"), 
-            dataToPlot->at("timestamps"), dataToPlot->at("velocities")
+            dataToPlot->at("timestamps"), dataToPlot->at("velocities"),
+            dataToPlot->at("timestamps"), dataToPlot->at("accelerations")
         );
 
-        ::matplot::legend({"positions", "velocities"});
+        ::matplot::legend({"position", "velocity", "acceleration"});
         matplot::show();
     }
 

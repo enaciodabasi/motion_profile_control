@@ -110,6 +110,21 @@ namespace motion_profile_generators
                 return t7;
             }
 
+            const T getTa() const
+            {
+                return ta;
+            }
+
+            const T getTj() const
+            {
+                return tj;
+            }
+
+            const T getTv() const
+            {
+                return tv;
+            }
+
         private:
             std::chrono::duration<T, DurationType> T1;
             std::chrono::duration<T, DurationType> T2;
@@ -127,6 +142,10 @@ namespace motion_profile_generators
             T t5;
             T t6;
             T t7;
+
+            T ta;
+            T tj;
+            T tv;
             
         };
 
@@ -156,6 +175,10 @@ namespace motion_profile_generators
             T7 = std::chrono::duration<T, DurationType>(t_7);
 
             this->totalTime = T1 + T2 + T3 + T4 + T5 + T6 + T7;
+
+            tj = T1.count();
+            ta = T2.count();
+            tv = T4.count();
 
             t1 = T1.count();
             t2 = t1 + T2.count();
@@ -205,7 +228,7 @@ namespace motion_profile_generators
                     tj = std::pow((target_value / motion_constraints.jerk / (1.0 + 1.0)), (1.0 / 3.0));
                 }
             }
-            std::cout << "Ta: " << ta << "Tj: " << tj << "Tv: " << tv << std::endl;
+
             DurationType t1 = tj;
             DurationType t2 = ta; 
             DurationType t3 = tj; 
@@ -248,31 +271,37 @@ namespace motion_profile_generators
             {
                 newReference.velocity = motion_constraints.jerk * std::pow(timeElapsedSinceProfileStarted, 2) / 2.0;
                 newReference.position = motion_constraints.jerk * std::pow(timeElapsedSinceProfileStarted, 3) / 6.0; 
+                newReference.acceleration = motion_constraints.jerk * timeElapsedSinceProfileStarted;
             }
             else if(timeElapsedSinceProfileStarted <= times.gett2())
             {
                 newReference.velocity = motion_constraints.jerk * times.getT1() * (timeElapsedSinceProfileStarted - times.gett1()) + (motion_constraints.jerk / 2.0) * std::pow(times.getT1(), 2);
-
+                newReference.acceleration = motion_constraints.jerk * times.getTj();
             }
             else if(timeElapsedSinceProfileStarted <= times.gett3())
             {
                 newReference.velocity = -(motion_constraints.jerk / 2.0) * std::pow((timeElapsedSinceProfileStarted - times.gett2()), 2) + motion_constraints.jerk * times.getT1() * ((timeElapsedSinceProfileStarted - times.gett2()) + times.getT2()) + (motion_constraints.jerk / 2.0) * times.getT1() * times.getT1();
+                newReference.acceleration = motion_constraints.jerk * (times.getTj() - (timeElapsedSinceProfileStarted - times.gett2()));
             }
             else if(timeElapsedSinceProfileStarted <= times.gett4())
             {
                 newReference.velocity = motion_constraints.jerk * times.getT1() * (times.getT1() + times.getT2());
+                newReference.acceleration = (DurationType)0.0;
             }
             else if(timeElapsedSinceProfileStarted <= times.gett5())
             {
                 newReference.velocity = -(motion_constraints.jerk / (2.0)) * std::pow((timeElapsedSinceProfileStarted - times.gett4()), 2)  + motion_constraints.jerk * times.getT1() * (times.getT1() + times.getT2());
+                newReference.acceleration = -(motion_constraints.jerk / std::pow(1, 2)) * (timeElapsedSinceProfileStarted - times.gett4());
             }
             else if(timeElapsedSinceProfileStarted <= times.gett6())
             {
                 newReference.velocity = -(motion_constraints.jerk) * times.getT1() * (timeElapsedSinceProfileStarted - times.gett5())  + motion_constraints.jerk * times.getT1() * times.getT2()  + (motion_constraints.jerk / 2) * std::pow(times.getT1(), 2);
+                newReference.acceleration = -(motion_constraints.jerk / 1.0) * times.getTj();
             }
             else if(timeElapsedSinceProfileStarted <= times.gett7())
             {
                 newReference.velocity = (motion_constraints.jerk / (2.0))  * std::pow((timeElapsedSinceProfileStarted - times.gett6()), 2)   + (motion_constraints.jerk / 2.0) * std::pow(times.getT1(), 2) - (motion_constraints.jerk) * times.gett1() * (timeElapsedSinceProfileStarted - times.gett6());
+                newReference.acceleration = (motion_constraints.jerk / powf(1, 2))* (timeElapsedSinceProfileStarted - times.gett6()) - (motion_constraints.jerk / 1.0) * times.getTj();
             }
             else
             {
