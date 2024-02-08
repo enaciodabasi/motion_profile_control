@@ -15,10 +15,11 @@
 #include <variant>
 #include <chrono>
 
-enum class MotionProfileType
+enum class MotionProfileType : uint16_t
 {
-    Triangular,
-    Trapezoidal
+    Triangular = 0x0,
+    Trapezoidal = 0x1,
+    SCurve = 0x2
 };
 
 template<typename T = double, typename DurationType = std::ratio<1>>

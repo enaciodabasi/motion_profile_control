@@ -91,28 +91,32 @@ namespace motion_profile_generators
          * @return std::optional<TrapezoidalProfileTimes<ReferenceType, DurationType>> 
          */
         template<typename ReferenceType, typename DurationType, class ElapsedTimeType = std::ratio<1>>
-        TrapezoidalProfileTimes<DurationType, ElapsedTimeType> calculateTrapeozidalOperationsTimes(
+        std::optional<TrapezoidalProfileTimes<DurationType, ElapsedTimeType>> calculateTrapeozidalOperationsTimes(
             const ReferenceType target_value,
-            ReferenceType& maximum_velocity,
-            const ReferenceType maximum_acceleration
+            const MotionConstraints<ReferenceType>& motion_constraints
         )
         {
             // Calculate required times for acceleration and deceleration.
-            std::chrono::duration<DurationType, ElapsedTimeType> tAccel = std::chrono::duration<DurationType, ElapsedTimeType>(maximum_velocity / maximum_acceleration);
-            std::chrono::duration<DurationType, ElapsedTimeType> tDecel = std::chrono::duration<DurationType, ElapsedTimeType>(maximum_velocity / maximum_acceleration);
+            std::chrono::duration<DurationType, ElapsedTimeType> tAccel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.maximum_velocity / motion_constraints.acceleration);
+            std::chrono::duration<DurationType, ElapsedTimeType> tDecel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.maximum_velocity / motion_constraints.deacceleration);
 
             // Calculate displacements:
-            ReferenceType dAcc = 0.5*maximum_acceleration*(tAccel.count() * tAccel.count());
-            ReferenceType dDec = 0.5*maximum_acceleration*(tDecel.count() * tDecel.count());
+            ReferenceType dAcc = 0.5*motion_constraints.maximum_acceleration*(tAccel.count() * tAccel.count());
+            ReferenceType dDec = 0.5*motion_constraints.maximum_acceleration*(tDecel.count() * tDecel.count());
 
             ReferenceType dConstVel = target_value - (dAcc + dDec); 
 
-            std::chrono::duration<DurationType, ElapsedTimeType> tConstVel = std::chrono::duration<DurationType, ElapsedTimeType>(dConstVel / maximum_velocity);
+            if(dConstVel <= 0)
+            {
+                return std::nullopt;
+            }
+
+            std::chrono::duration<DurationType, ElapsedTimeType> tConstVel = std::chrono::duration<DurationType, ElapsedTimeType>(dConstVel / motion_constraints.max_increment);
 
             return {tAccel, tConstVel, tDecel};
 
         }
-
+        
         /**
          * @brief 
          * 

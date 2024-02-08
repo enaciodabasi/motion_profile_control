@@ -18,6 +18,8 @@
 
 #include "motion_profile_generators/motion_control_defs.hpp"
 #include "motion_profile_generators/triangular_profile.hpp"
+#include "motion_profile_generators/trapezoidal_profile.hpp"
+#include "motion_profile_generators/scurve_profile.hpp"
 
 template <typename ReferenceType, typename DurationType>
 class MotionProfileController
@@ -49,12 +51,7 @@ public:
     template<typename ElapsedTimeType>
     std::unique_ptr<ProfileTimes<ReferenceType, DurationType>> setupProfileGeneration(const ReferenceType target, const MotionProfileType type)
     {
-        bool isMotionProfileSuitable = areConstraintsSuitableForCurrentMotionProfile(type);
-
-        if(!isMotionProfileSuitable){
-            // If current constraints are not suited for the desired motion profile type, change the constraint or the motion profile type:
-            m_CurrentMotionProfileType = type;
-        }    
+        
 
         switch (m_CurrentMotionProfileType)
         {
@@ -67,16 +64,45 @@ public:
                 m_CurrentMotionConstraints.acceleration
             );
                                   
-            return std::unique_ptr<TriangularProfileTimes<ReferenceType, DurationType>>(new TriangularProfileTimes<ReferenceType, DurationType>(times));
+            return std::unique_ptr<TriangularProfileTimes<ReferenceType, DurationType>>(new TriangularProfileTimes<ReferenceType, DurationType>(std::move(times)));
         }
         case MotionProfileType::Trapezoidal:
         {
             
-            break;
+            using namespace motion_profile_generators::trapezoidal_profile;
+
+            auto times = calculateTrapeozidalOperationsTimes(
+                target,
+                m_CurrentMotionConstraints
+            );
+
+            if(!times)
+            {
+                
+                using namespace motion_profile_generators::triangular_profile;
+                auto newProfileTimes = calculateTriangularOperationTimes(
+                    target,
+                    m_CurrentMotionConstraints
+                );
+
+                m_CurrentMotionProfileType = MotionProfileType::Triangular;
+
+                return std::unique_ptr<TriangularProfileTimes<ReferenceType, DurationType>>(new TriangularProfileTimes<ReferenceType, DurationType>(std::move(newProfileTimes)));
+            }
+
+            return std::unique_ptr<TrapezoidalProfileTimes<ReferenceType, DurationType>>(new TrapezoidalProfileTimes<ReferenceType, DurationType>(std::move(times)));
+            /* break; */
+        }
+        case MotionProfileType::SCurve:
+        {
+            using namespace motion_profile_generators::scurve_profile;
+
+            return std::unique_ptr<SCurveProfileTimes<DurationType>>(new SCurveProfileTimes<ReferenceType, DurationType>(
+                calculateSCurveOperationTimes<DurationType, ReferenceType>(target, m_CurrentMotionConstraints)
+            ));
         }
 
         default:
-            
             break;
         }
         
@@ -94,13 +120,18 @@ public:
         case MotionProfileType::Triangular:
         {
             
-                                    
+            
             break;
         }
         case MotionProfileType::Trapezoidal:
         {
 
             break;
+        }
+
+        case MotionProfileType::SCurve:
+        {
+
         }
 
         default:
@@ -122,46 +153,6 @@ private:
 
     void reset();
 
-    bool areConstraintsSuitableForCurrentMotionProfile(const ReferenceType target, MotionProfileType& type)
-    {
-        
-        bool profileOk = true;
-
-        switch (type)
-        {
-        case MotionProfileType::Triangular:
-        {
-                     
-            break;
-        }
-        case MotionProfileType::Trapezoidal:
-        {
-            profileOk = trapezoidalProfileCheck(target);
-            // Update Constraints:
-            if(!profileOk){
-                type = MotionProfileType::Triangular;
-            }
-            break;
-        }
-
-        default:
-            profileOk = false;
-            break;
-        }
-
-        return profileOk;
-    }
-
-    bool trapezoidalProfileCheck(const ReferenceType target)
-    {   
-
-        ReferenceType tMaxVel = m_CurrentMotionConstraints.increment / m_CurrentMotionConstraints.acceleration;
-
-        return (
-            (fabs(target)) -
-            (2.0 * fabs(0.5 * m_CurrentMotionConstraints.acceleration * (tMaxVel * tMaxVel)))
-        );
-    }
 };
 
 #endif // MOTION_PROFILE_CONTROLLER_HPP_

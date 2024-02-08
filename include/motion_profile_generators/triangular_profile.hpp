@@ -38,6 +38,17 @@ namespace motion_profile_generators
                 const std::chrono::duration<T, DurationType>& decel_time
             );
 
+            TriangularProfileTimes(
+                TriangularProfileTimes<T, DurationType>&& other
+            )
+            {
+
+                
+                other.accelerationTime = decltype(accelerationTime)();
+                other.decelerationTime = decltype(decelerationTime)();
+                other.totalTime = decltype(totalTime)();
+            }
+
             const T getAccelerationDuration() const
             {
                 return accelerationTime.count();
@@ -87,22 +98,21 @@ namespace motion_profile_generators
          * @return TriangularProfileTimes<DurationType> 
          */
         template<typename DurationType, typename ControlValueType, typename ElapsedTimeType = std::ratio<1>>
-        TriangularProfileTimes<DurationType> calculateTriangularOperationTimes(
+        TriangularProfileTimes<DurationType, ElapsedTimeType> calculateTriangularOperationTimes(
             ControlValueType target_value,
-            ControlValueType& maximum_velocity,
-            const ControlValueType maximum_acceleration
+            MotionConstraints<ControlValueType>& motion_constraints
         )
         {
             //maximum_velocity = std::sqrt(
             //    std::abs(target_value) / maximum_acceleration
             //s);
 
-            auto timeToReachMaxVel = std::sqrt((2.0 * target_value) / maximum_acceleration);
+            auto timeToReachMaxVel = std::sqrt((2.0 * target_value) / motion_constraints.acceleration);
 
             std::chrono::duration<DurationType, ElapsedTimeType>  accel_time = std::chrono::duration<DurationType, ElapsedTimeType>(timeToReachMaxVel / 2.0);
             std::chrono::duration<DurationType, ElapsedTimeType>  decel_time = accel_time;
 
-            maximum_velocity = maximum_acceleration * (timeToReachMaxVel / (DurationType)2.0);
+            motion_constraints.max_increment = motion_constraints.acceleration * (timeToReachMaxVel / (DurationType)2.0);
 
             return TriangularProfileTimes<DurationType>(accel_time, decel_time);
 

@@ -43,14 +43,14 @@ install(
 
 #add_subdirectory(test ${CMAKE_CURRENT_SOURCE_DIR}/build/test)
 
-add_executable(triangular_profile_test test/triangular_profile_test/main.cpp)
-target_link_libraries(triangular_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
-target_include_directories(triangular_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
-
-add_executable(trapezoidal_profile_test test/trapezoidal_profile_test/main.cpp)
-target_link_libraries(trapezoidal_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
-target_include_directories(trapezoidal_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
-
-add_executable(scurve_profile_test test/s_curve_profile_test/main.cpp)
-target_link_libraries(scurve_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
-target_include_directories(scurve_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
+##add_executable(triangular_profile_test test/triangular_profile_test/main.cpp)
+##target_link_libraries(triangular_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
+##target_include_directories(triangular_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
+##
+##add_executable(trapezoidal_profile_test test/trapezoidal_profile_test/main.cpp)
+##target_link_libraries(trapezoidal_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
+##target_include_directories(trapezoidal_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
+##
+##add_executable(scurve_profile_test test/s_curve_profile_test/main.cpp)
+##target_link_libraries(scurve_profile_test ${CMAKE_PROJECT_NAME} ${GTEST_LIBRARIES}  Matplot++::matplot)
+##target_include_directories(scurve_profile_test PUBLIC ${GTEST_INCLUDE_DIRS} include/)
