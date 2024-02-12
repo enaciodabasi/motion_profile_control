@@ -46,7 +46,7 @@ namespace motion_profile_generators
                 
                 other.accelerationTime = decltype(accelerationTime)();
                 other.decelerationTime = decltype(decelerationTime)();
-                other.totalTime = decltype(totalTime)();
+                other.totalTime = decltype(this->totalTime)();
             }
 
             const T getAccelerationDuration() const
@@ -132,7 +132,7 @@ namespace motion_profile_generators
          * @param previous_timepoint 
          * @return MotionProfileReference<ReferenceType> 
          */
-        template<typename ReferenceType, typename DurationType, class ClockType, class ElapsedTimeType = std::ratio<1>>
+        template<typename ReferenceType, typename DurationType, class ClockType = std::chrono::high_resolution_clock, class ElapsedTimeType = std::ratio<1>>
         std::optional<MotionProfileReference<ReferenceType>> generateReference(
             MotionProfileReference<ReferenceType> & previous_references,
             const ReferenceType& target,

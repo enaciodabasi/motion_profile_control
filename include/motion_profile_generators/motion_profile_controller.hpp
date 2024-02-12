@@ -21,7 +21,7 @@
 #include "motion_profile_generators/trapezoidal_profile.hpp"
 #include "motion_profile_generators/scurve_profile.hpp"
 
-template <typename ReferenceType, typename DurationType>
+template <typename ReferenceType, typename DurationType, class ClockType = std::chrono::high_resolution_clock>
 class MotionProfileController
 {
     
@@ -120,11 +120,28 @@ public:
         case MotionProfileType::Triangular:
         {
             
-            
+            newRef = motion_profile_generators::triangular_profile::generateReference<ReferenceType, DurationType>(
+                m_CurrentProfileInformation.m_PreviousReference,
+                target, 
+                m_CurrentMotionConstraints, 
+                *m_CurrentProfileInformation.m_CurrentProfileTimes,
+                m_CurrentProfileInformation.m_PreviousControlLoopUpdateTime,
+                m_CurrentProfileInformation.m_CurrentProfileStartTime
+            );
+
             break;
         }
         case MotionProfileType::Trapezoidal:
         {
+            
+            newRef = motion_profile_generators::trapezoidal_profile::generateReference<ReferenceType, DurationType, ClockType>(
+                m_CurrentProfileInformation.m_PreviousReference,
+                target,
+                m_CurrentMotionConstraints,
+                *m_CurrentProfileInformation.m_CurrentProfileTimes,
+                m_CurrentProfileInformation.m_PreviousControlLoopUpdateTime,
+                m_CurrentProfileInformation.m_CurrentProfileStartTime
+            );
 
             break;
         }
@@ -132,6 +149,16 @@ public:
         case MotionProfileType::SCurve:
         {
 
+            newRef = motion_profile_generators::scurve_profile::generateReference<ReferenceType, DurationType, ClockType>(
+                m_CurrentProfileInformation.m_PreviousReference,
+                target,
+                m_CurrentMotionConstraints,
+                *m_CurrentProfileInformation.m_CurrentProfileTimes,
+                m_CurrentProfileInformation.m_PreviousControlLoopUpdateTime,
+                m_CurrentProfileInformation.m_CurrentProfileStartTime
+            );
+
+            break;
         }
 
         default:
@@ -143,9 +170,33 @@ public:
     }
 
 private:
-    MotionProfileType m_CurrentMotionProfileType;
 
-    std::unique_ptr<ProfileTimes<ReferenceType, DurationType>> m_CurrentProfileTimes;
+    struct CurrentProfileInfo_t
+    {
+        public:
+
+        std::chrono::time_point<ClockType> m_CurrentProfileStartTime;
+
+        std::chrono::time_point<ClockType> m_PreviousControlLoopUpdateTime;
+
+        std::unique_ptr<ProfileTimes<ReferenceType, DurationType>> m_CurrentProfileTimes;
+
+        MotionProfileReference<ReferenceType> m_PreviousReference;
+
+        void reset()
+        {
+            this->m_CurrentProfileStartTime = {};
+            this->m_PreviousControlLoopUpdateTime = {};
+            this->m_PreviousReference = decltype(m_PreviousReference)();
+            this->m_CurrentProfileTimes.reset();
+        }
+    };
+
+    using CurrentProfileInfo = CurrentProfileInfo_t;
+
+    CurrentProfileInfo m_CurrentProfileInformation;
+
+    MotionProfileType m_CurrentMotionProfileType;   
 
     MotionConstraints<ReferenceType> m_CurrentMotionConstraints;
 
