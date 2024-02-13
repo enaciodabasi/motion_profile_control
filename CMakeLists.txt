@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.0)
-project(motion_profile_generators VERSION 0.1.0 LANGUAGES C CXX)
+project(MotionProfileGenerators VERSION 1.0.0 LANGUAGES C CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
   add_compile_options(-Wall -Wextra -Werror=conversion -Werror=unused-but-set-variable -Werror=return-type)
@@ -34,12 +34,28 @@ install(
     DESTINATION /usr/local/include/${PROJECT_NAME}
 )
 
-install(
-    TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION /usr/local/bin/${PROJECT_NAME}
-    ARCHIVE DESTINATION /usr/local/lib/${PROJECT_NAME}
-    LIBRARY DESTINATION /usr/local/lib/${PROJECT_NAME}
+set(INCLUDE_INSTALL_DIR /usr/local/include/${PROJECT_NAME}
+    CACHE PATH "Location of header files" )
+set(SYSCONFIG_INSTALL_DIR /usr/local/etc/MotionProfileGenerators
+    CACHE PATH "Location of configuration files" )
+set(LIB_INSTALL_DIR /usr/local/lib/)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    MotionProfileGenerators.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGenerators.cmake
+    INSTALL_DESTINATION /usr/local/lib/cmake/MotionProfileGenerators
+    PATH_VARS INCLUDE_INSTALL_DIR SYSCONFIG_INSTALL_DIR LIB_INSTALL_DIR
 )
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfigVersion.cmake
+    VERSION 1.0.0
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGenerators.cmake ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfigVersion.cmake
+    DESTINATION /usr/local/lib/cmake/${PROJECT_NAME})
 
 #add_subdirectory(test ${CMAKE_CURRENT_SOURCE_DIR}/build/test)
 
