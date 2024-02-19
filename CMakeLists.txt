@@ -5,10 +5,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
   add_compile_options(-Wall -Wextra -Werror=conversion -Werror=unused-but-set-variable -Werror=return-type)
 endif()
 
-set (CMAKE_GENERATOR "Unix Makefiles" CACHE INTERNAL "" FORCE)
+list(APPEND CMAKE_MODULE_PATH /usr/local/lib/cmake)
+
+option(BUILD_PLOT_LIB "Build the plotting library." OFF)
+
+set(CMAKE_GENERATOR "Unix Makefiles" CACHE INTERNAL "" FORCE)
 
 find_package(GTest REQUIRED)
-find_package(Matplot++ REQUIRED)
+
+if(BUILD_PLOT_LIB)
+    find_package(Matplot++ REQUIRED)
+endif()
 
 add_library(
     ${CMAKE_PROJECT_NAME}
@@ -34,19 +41,26 @@ install(
     DESTINATION /usr/local/include/${PROJECT_NAME}
 )
 
-set(INCLUDE_INSTALL_DIR /usr/local/include/${PROJECT_NAME}
-    CACHE PATH "Location of header files" )
-set(SYSCONFIG_INSTALL_DIR /usr/local/etc/MotionProfileGenerators
-    CACHE PATH "Location of configuration files" )
-set(LIB_INSTALL_DIR /usr/local/lib/)
+install(
+    TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION /usr/local/bin/${PROJECT_NAME}
+    ARCHIVE DESTINATION /usr/local/lib/${PROJECT_NAME}
+    LIBRARY DESTINATION /usr/local/lib/${PROJECT_NAME}
+)
 
 include(CMakePackageConfigHelpers)
 
+set(INCLUDE_INSTALL_DIR /usr/local/include/${PROJECT_NAME}
+    CACHE PATH "Location of header files" )
+set(SYSCONFIG_INSTALL_DIR /usr/local/etc/motionprofilegenerators
+    CACHE PATH "Location of configuration files" )
+set(LIB_INSTALL_DIR /usr/local/lib/${PROJECT_NAME})
+
 configure_package_config_file(
     MotionProfileGenerators.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGenerators.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfig.cmake
     INSTALL_DESTINATION /usr/local/lib/cmake/MotionProfileGenerators
-    PATH_VARS INCLUDE_INSTALL_DIR SYSCONFIG_INSTALL_DIR LIB_INSTALL_DIR
+    PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
 )
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfigVersion.cmake
@@ -54,7 +68,7 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGenerators.cmake ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfigVersion.cmake
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfigVersion.cmake
     DESTINATION /usr/local/lib/cmake/${PROJECT_NAME})
 
 #add_subdirectory(test ${CMAKE_CURRENT_SOURCE_DIR}/build/test)

@@ -48,11 +48,26 @@ public:
         return false;
     }
 
+    bool setupProfile(const ReferenceType target, const MotionProfileType type)
+    {
+
+        m_CurrentProfileInformation.m_CurrentProfileTimes = calculateProfileTime(
+            target, type
+        );
+
+        if(!m_CurrentProfileInformation.m_CurrentProfileTimes)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     template<typename ElapsedTimeType>
-    std::unique_ptr<ProfileTimes<ReferenceType, DurationType>> setupProfileGeneration(const ReferenceType target, const MotionProfileType type)
+    std::unique_ptr<ProfileTimes<ReferenceType, DurationType>> calculateProfileTime(const ReferenceType target, const MotionProfileType type)
     {
         
-
+        
         switch (m_CurrentMotionProfileType)
         {
         case MotionProfileType::Triangular:
@@ -169,10 +184,15 @@ public:
         return newRef;
     }
 
+/*     const DurationType getLoopPeriod() const
+    {
+        
+    }  */
+
 private:
 
     struct CurrentProfileInfo_t
-    {
+    {//huykuguguyfyfyfyfyfyfyfgfufgyjgy
         public:
 
         std::chrono::time_point<ClockType> m_CurrentProfileStartTime;
@@ -196,7 +216,7 @@ private:
 
     CurrentProfileInfo m_CurrentProfileInformation;
 
-    MotionProfileType m_CurrentMotionProfileType;   
+    MotionProfileType m_CurrentMotionProfileType;    
 
     MotionConstraints<ReferenceType> m_CurrentMotionConstraints;
 
