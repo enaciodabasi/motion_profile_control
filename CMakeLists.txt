@@ -20,7 +20,6 @@ endif()
 add_library(
     ${CMAKE_PROJECT_NAME}
     SHARED
-    src/triangular_profile.cpp
     src/motion_profile_controller.cpp
 )
 target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_17)
@@ -32,10 +31,13 @@ target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_17)
 target_include_directories(
     ${CMAKE_PROJECT_NAME}
     PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+    include/
+    #$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    #$<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 
 )
+
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 install(
     DIRECTORY include/
     DESTINATION /usr/local/include/${PROJECT_NAME}
@@ -55,12 +57,16 @@ set(INCLUDE_INSTALL_DIR /usr/local/include/${PROJECT_NAME}
 set(SYSCONFIG_INSTALL_DIR /usr/local/etc/motionprofilegenerators
     CACHE PATH "Location of configuration files" )
 set(LIB_INSTALL_DIR /usr/local/lib/${PROJECT_NAME})
+set(SH_LIB_FILE_NAME lib${PROJECT_NAME}.so)
+set(LIBS ${LIB_INSTALL_DIR}/${SH_LIB_FILE_NAME})
+
+#include(CMakePrintHelpers)
 
 configure_package_config_file(
     MotionProfileGenerators.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfig.cmake
     INSTALL_DESTINATION /usr/local/lib/cmake/MotionProfileGenerators
-    PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
+    PATH_VARS INCLUDE_INSTALL_DIR LIB_INSTALL_DIR LIBS
 )
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/MotionProfileGeneratorsConfigVersion.cmake

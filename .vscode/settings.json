@@ -10,6 +10,19 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
-        "variant": "cpp"
-    }
+        "variant": "cpp",
+        "hash_map": "cpp",
+        "bitset": "cpp",
+        "algorithm": "cpp",
+        "cwchar": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "exception": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "new": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp"
+    },
+    "ros.distro": "humble"
 }

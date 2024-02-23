@@ -21,7 +21,7 @@
 #include "motion_profile_generators/trapezoidal_profile.hpp"
 #include "motion_profile_generators/scurve_profile.hpp"
 
-template <typename ReferenceType, typename DurationType, class ClockType = std::chrono::high_resolution_clock>
+template <typename ReferenceType, typename DurationType, class ClockType = std::chrono::high_resolution_clock, typename ElapsedTimeType = std::ratio<1>>
 class MotionProfileController
 {
     
@@ -48,13 +48,20 @@ public:
         return false;
     }
 
-    bool setupProfile(const ReferenceType target, const MotionProfileType type)
+    bool setMotionConstraints(const MotionConstraints<ReferenceType>& constraints)
+    {
+        this->m_CurrentMotionConstraints = constraints;
+
+        return true;
+    }
+
+    bool setupProfile(const ReferenceType target)
     {
 
         m_CurrentProfileInformation.m_CurrentProfileTimes = calculateProfileTime(
-            target, type
+            target, m_CurrentMotionProfileType
         );
-
+        
         if(!m_CurrentProfileInformation.m_CurrentProfileTimes)
         {
             return false;
@@ -63,8 +70,7 @@ public:
         return true;
     }
 
-    template<typename ElapsedTimeType>
-    std::unique_ptr<ProfileTimes<ReferenceType, DurationType>> calculateProfileTime(const ReferenceType target, const MotionProfileType type)
+    std::unique_ptr<ProfileTimes<DurationType, ElapsedTimeType>> calculateProfileTime(const ReferenceType target, const MotionProfileType type)
     {
         
         
@@ -75,18 +81,17 @@ public:
             using namespace motion_profile_generators::triangular_profile;
             TriangularProfileTimes times = calculateTriangularOperationTimes<DurationType, ReferenceType, ElapsedTimeType>(
                 target,
-                m_CurrentMotionConstraints.increment,
-                m_CurrentMotionConstraints.acceleration
+                m_CurrentMotionConstraints
             );
                                   
-            return std::unique_ptr<TriangularProfileTimes<ReferenceType, DurationType>>(new TriangularProfileTimes<ReferenceType, DurationType>(std::move(times)));
+            return std::unique_ptr<TriangularProfileTimes<DurationType, ElapsedTimeType>>(new TriangularProfileTimes<DurationType, ElapsedTimeType>(std::move(times)));
         }
         case MotionProfileType::Trapezoidal:
         {
             
             using namespace motion_profile_generators::trapezoidal_profile;
 
-            auto times = calculateTrapeozidalOperationsTimes(
+            std::optional<TrapezoidalProfileTimes<DurationType, ElapsedTimeType>> times = calculateTrapeozidalOperationsTimes<ReferenceType, DurationType, ElapsedTimeType>(
                 target,
                 m_CurrentMotionConstraints
             );
@@ -95,26 +100,25 @@ public:
             {
                 
                 using namespace motion_profile_generators::triangular_profile;
-                auto newProfileTimes = calculateTriangularOperationTimes(
+                auto newProfileTimes = calculateTriangularOperationTimes<ReferenceType, DurationType, ElapsedTimeType>(
                     target,
                     m_CurrentMotionConstraints
                 );
 
                 m_CurrentMotionProfileType = MotionProfileType::Triangular;
 
-                return std::unique_ptr<TriangularProfileTimes<ReferenceType, DurationType>>(new TriangularProfileTimes<ReferenceType, DurationType>(std::move(newProfileTimes)));
+                return std::unique_ptr<TriangularProfileTimes<DurationType, ElapsedTimeType>>(new TriangularProfileTimes<DurationType, ElapsedTimeType>(std::move(newProfileTimes)));
             }
 
-            return std::unique_ptr<TrapezoidalProfileTimes<ReferenceType, DurationType>>(new TrapezoidalProfileTimes<ReferenceType, DurationType>(std::move(times)));
+            return std::unique_ptr<TrapezoidalProfileTimes<DurationType, ElapsedTimeType>>(new TrapezoidalProfileTimes<DurationType, ElapsedTimeType>(std::move(times.value())));
             /* break; */
         }
         case MotionProfileType::SCurve:
         {
             using namespace motion_profile_generators::scurve_profile;
+            SCurveProfileTimes<DurationType, ElapsedTimeType> times = calculateSCurveOperationTimes<DurationType, ReferenceType, ElapsedTimeType>(target, m_CurrentMotionConstraints);
 
-            return std::unique_ptr<SCurveProfileTimes<DurationType>>(new SCurveProfileTimes<ReferenceType, DurationType>(
-                calculateSCurveOperationTimes<DurationType, ReferenceType>(target, m_CurrentMotionConstraints)
-            ));
+            return std::unique_ptr<SCurveProfileTimes<DurationType, ElapsedTimeType>>(new SCurveProfileTimes<DurationType, ElapsedTimeType>(times));
         }
 
         default:
@@ -189,9 +193,9 @@ public:
         
     }  */
 
-private:
+public:
 
-    struct CurrentProfileInfo_t
+    struct CurrentProfileInfo
     {//huykuguguyfyfyfyfyfyfyfgfufgyjgy
         public:
 
@@ -199,7 +203,7 @@ private:
 
         std::chrono::time_point<ClockType> m_PreviousControlLoopUpdateTime;
 
-        std::unique_ptr<ProfileTimes<ReferenceType, DurationType>> m_CurrentProfileTimes;
+        std::unique_ptr<ProfileTimes<DurationType, ElapsedTimeType>> m_CurrentProfileTimes;
 
         MotionProfileReference<ReferenceType> m_PreviousReference;
 
@@ -211,8 +215,6 @@ private:
             this->m_CurrentProfileTimes.reset();
         }
     };
-
-    using CurrentProfileInfo = CurrentProfileInfo_t;
 
     CurrentProfileInfo m_CurrentProfileInformation;
 

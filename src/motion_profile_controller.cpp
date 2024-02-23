@@ -10,3 +10,7 @@
  */
 
 #include "motion_profile_generators/motion_profile_controller.hpp"
+#include "motion_profile_generators/motion_control_defs.hpp"
+#include "motion_profile_generators/triangular_profile.hpp"
+#include "motion_profile_generators/trapezoidal_profile.hpp"
+#include "motion_profile_generators/scurve_profile.hpp"

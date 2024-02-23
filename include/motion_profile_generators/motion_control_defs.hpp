@@ -22,22 +22,52 @@ enum class MotionProfileType : uint16_t
     SCurve = 0x2
 };
 
-template<typename T = double, typename DurationType = std::ratio<1>>
+template<typename DurationType = double, typename ElapsedTimeType = std::ratio<1>>
 struct ProfileTimes
 {
 
     public: 
 
-    const T getTotalTime() const
+    ProfileTimes()
+    {
+        
+    }
+
+    /**
+     * @brief Copy Constructor
+     * 
+     * @param other 
+     */
+    ProfileTimes(ProfileTimes<DurationType, ElapsedTimeType>& other)
+    {
+        this->totalTime = other.totalTime;
+    }
+
+    /**
+     * @brief Move Constructor
+     * 
+     * @param other 
+     */
+    ProfileTimes(ProfileTimes<DurationType, ElapsedTimeType>&& other)
+    {
+        this->totalTime = std::move(other.totalTime);
+    }
+
+    virtual ~ProfileTimes()
+    {
+        
+    }
+
+    const DurationType getTotalTime() const
     {
       
         return totalTime.count();
     }
 
-    //using Duration = std::chrono::duration<T, DurationType>;
+    //using Duration = std::chrono::duration<T, ElapsedTimeType>;
     protected:
 
-    std::chrono::duration<T, DurationType> totalTime;
+    std::chrono::duration<DurationType, ElapsedTimeType> totalTime;
 };
 
 template<typename ReferenceType>

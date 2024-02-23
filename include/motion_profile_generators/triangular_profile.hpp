@@ -21,25 +21,24 @@
 #include <optional>
 #include <iostream>
 
-
 namespace motion_profile_generators
 {
 
     namespace triangular_profile
     {
-        template <typename T, typename DurationType = std::ratio<1>> 
-        struct TriangularProfileTimes : public ProfileTimes<T, DurationType>
+        template <typename DurationType, typename ElapsedTimeType = std::ratio<1>> 
+        struct TriangularProfileTimes : public ProfileTimes<DurationType, ElapsedTimeType>
         {   
             public:
 
             TriangularProfileTimes();
             TriangularProfileTimes(
-                const std::chrono::duration<T, DurationType>& accel_time,
-                const std::chrono::duration<T, DurationType>& decel_time
+                const std::chrono::duration<DurationType, ElapsedTimeType>& accel_time,
+                const std::chrono::duration<DurationType, ElapsedTimeType>& decel_time
             );
 
             TriangularProfileTimes(
-                TriangularProfileTimes<T, DurationType>&& other
+                TriangularProfileTimes<DurationType, ElapsedTimeType>&& other
             )
             {
 
@@ -49,37 +48,37 @@ namespace motion_profile_generators
                 other.totalTime = decltype(this->totalTime)();
             }
 
-            const T getAccelerationDuration() const
+            const DurationType getAccelerationDuration() const
             {
                 return accelerationTime.count();
             } 
 
-            const T getDecelerationTime() const
+            const DurationType getDecelerationTime() const
             {
                 return decelerationTime.count();
             }
 
             private:
 
-            std::chrono::duration<T, DurationType> accelerationTime;
-            std::chrono::duration<T, DurationType> decelerationTime;
+            std::chrono::duration<DurationType, ElapsedTimeType> accelerationTime;
+            std::chrono::duration<DurationType, ElapsedTimeType> decelerationTime;
 
         };
 
-        template <typename T, typename DurationType>
-        TriangularProfileTimes<T, DurationType>::TriangularProfileTimes()
+        template <typename DurationType, typename ElapsedTimeType>
+        TriangularProfileTimes<DurationType, ElapsedTimeType>::TriangularProfileTimes()
         {   
             
-            this->totalTime = std::chrono::duration<T, DurationType>(0.0);
-            accelerationTime = std::chrono::duration<T, DurationType>(0.0);
-            decelerationTime = std::chrono::duration<T, DurationType>(0.0);
+            this->totalTime = std::chrono::duration<DurationType, ElapsedTimeType>(0.0);
+            accelerationTime = std::chrono::duration<DurationType, ElapsedTimeType>(0.0);
+            decelerationTime = std::chrono::duration<DurationType, ElapsedTimeType>(0.0);
             
         }
 
-        template <typename T, typename DurationType>
-        TriangularProfileTimes<T, DurationType>::TriangularProfileTimes(
-            const std::chrono::duration<T, DurationType>& accel_time,
-            const std::chrono::duration<T, DurationType>& decel_time
+        template <typename DurationType, typename ElapsedTimeType>
+        TriangularProfileTimes<DurationType, ElapsedTimeType>::TriangularProfileTimes(
+            const std::chrono::duration<DurationType, ElapsedTimeType>& accel_time,
+            const std::chrono::duration<DurationType, ElapsedTimeType>& decel_time
         )
         {
             accelerationTime = accel_time;

@@ -23,54 +23,92 @@ namespace motion_profile_generators
     namespace trapezoidal_profile
     {
 
-        template <typename T = double, typename DurationType = std::ratio<1>>
-        struct TrapezoidalProfileTimes : public ProfileTimes<T, DurationType>
+        template <typename DurationType = double, typename ElapsedTimeType = std::ratio<1>>
+        struct TrapezoidalProfileTimes : public ProfileTimes<DurationType, ElapsedTimeType>
         {
         public:
 
             TrapezoidalProfileTimes();
+            
+            /* TrapezoidalProfileTimes(
+                const DurationType accel_time,
+                const DurationType constant_vel_time,
+                const DurationType decel_time
+            ); */
+
             TrapezoidalProfileTimes(
-                const std::chrono::duration<T, DurationType>& accel_time,
-                const std::chrono::duration<T, DurationType>& constant_vel_time,
-                const std::chrono::duration<T, DurationType>& decel_time
+                const std::chrono::duration<DurationType, ElapsedTimeType>& accel_time,
+                const std::chrono::duration<DurationType, ElapsedTimeType>& constant_vel_time,
+                const std::chrono::duration<DurationType, ElapsedTimeType>& decel_time
             );
 
-            const T getAccelerationDuration() const
+            TrapezoidalProfileTimes(TrapezoidalProfileTimes<DurationType, ElapsedTimeType>& other)
+            {
+                this->accelerationTime = other.accelerationTime;
+                this->constantVelocityTime = other.constantVelocityTime;
+                this->decelerationTime = other.decelerationTime;
+                this->totalTime = other.totalTime;
+            }
+
+            TrapezoidalProfileTimes(TrapezoidalProfileTimes<DurationType, ElapsedTimeType>&& other)
+            {
+                this->accelerationTime = std::move(other.accelerationTime);
+                this->constantVelocityTime = std::move(other.constantVelocityTime);
+                this->decelerationTime = std::move(other.decelerationTime);
+                this->totalTime = std::move(other.totalTime);
+            }
+
+            const DurationType getAccelerationDuration() const
             {
                 return accelerationTime.count();
             } 
 
-            const T getConstantVelocityDuration() const
+            const DurationType getConstantVelocityDuration() const
             {
                 return constantVelocityTime.count();
             }
 
-            const T getDecelerationTime() const
+            const DurationType getDecelerationTime() const
             {
                 return decelerationTime.count();
             }
 
         private:
-            std::chrono::duration<T, DurationType> accelerationTime;
-            std::chrono::duration<T, DurationType> decelerationTime;
-            std::chrono::duration<T, DurationType> constantVelocityTime;
+
+            std::chrono::duration<DurationType, ElapsedTimeType> accelerationTime;
+            std::chrono::duration<DurationType, ElapsedTimeType> decelerationTime;
+            std::chrono::duration<DurationType, ElapsedTimeType> constantVelocityTime;
         };
 
-        template <typename T, typename DurationType>
-        TrapezoidalProfileTimes<T, DurationType>::TrapezoidalProfileTimes()
+        template <typename DurationType, typename ElapsedTimeType>
+        TrapezoidalProfileTimes<DurationType, ElapsedTimeType>::TrapezoidalProfileTimes()
         {   
             
-            this->totalTime = std::chrono::duration<T, DurationType>(0.0);
-            accelerationTime = std::chrono::duration<T, DurationType>(0.0);
-            decelerationTime = std::chrono::duration<T, DurationType>(0.0);
+            this->totalTime = std::chrono::duration<DurationType, ElapsedTimeType>(0.0);
+            accelerationTime = std::chrono::duration<DurationType, ElapsedTimeType>(0.0);
+            decelerationTime = std::chrono::duration<DurationType, ElapsedTimeType>(0.0);
             
         }
 
-        template <typename T, typename DurationType>
-        TrapezoidalProfileTimes<T, DurationType>::TrapezoidalProfileTimes(
-            const std::chrono::duration<T, DurationType>& accel_time,
-            const std::chrono::duration<T, DurationType>& constant_vel_time,
-            const std::chrono::duration<T, DurationType>& decel_time
+        /* template<typename DurationType, typename ElapsedTimeType>
+        TrapezoidalProfileTimes<DurationType, ElapsedTimeType>::TrapezoidalProfileTimes(
+                const DurationType accel_time,
+                const DurationType constant_vel_time,
+                const DurationType decel_time
+        )
+        {
+            using Duration = std::chrono::duration<DurationType, ElapsedTimeType>
+            accelerationTime = Duration(accel_time);
+            constantVelocityTime = Duration(constant_vel_time);
+            decelerationTime = Duration(decel_time);
+            this->totalTime = accelerationTime + decelerationTime + constantVelocityTime;
+        } */
+
+        template <typename DurationType, typename ElapsedTimeType>
+        TrapezoidalProfileTimes<DurationType, ElapsedTimeType>::TrapezoidalProfileTimes(
+            const std::chrono::duration<DurationType, ElapsedTimeType>& accel_time,
+            const std::chrono::duration<DurationType, ElapsedTimeType>& constant_vel_time,
+            const std::chrono::duration<DurationType, ElapsedTimeType>& decel_time
         )
         {
             accelerationTime = accel_time;
@@ -97,12 +135,12 @@ namespace motion_profile_generators
         )
         {
             // Calculate required times for acceleration and deceleration.
-            std::chrono::duration<DurationType, ElapsedTimeType> tAccel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.maximum_velocity / motion_constraints.acceleration);
-            std::chrono::duration<DurationType, ElapsedTimeType> tDecel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.maximum_velocity / motion_constraints.deacceleration);
+            std::chrono::duration<DurationType, ElapsedTimeType> tAccel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.max_increment / motion_constraints.acceleration);
+            std::chrono::duration<DurationType, ElapsedTimeType> tDecel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.max_increment / motion_constraints.deacceleration);
 
             // Calculate displacements:
-            ReferenceType dAcc = 0.5*motion_constraints.maximum_acceleration*(tAccel.count() * tAccel.count());
-            ReferenceType dDec = 0.5*motion_constraints.maximum_acceleration*(tDecel.count() * tDecel.count());
+            ReferenceType dAcc = 0.5*motion_constraints.acceleration*(tAccel.count() * tAccel.count());
+            ReferenceType dDec = 0.5*motion_constraints.deacceleration*(tDecel.count() * tDecel.count());
 
             ReferenceType dConstVel = target_value - (dAcc + dDec); 
 
@@ -112,8 +150,8 @@ namespace motion_profile_generators
             }
 
             std::chrono::duration<DurationType, ElapsedTimeType> tConstVel = std::chrono::duration<DurationType, ElapsedTimeType>(dConstVel / motion_constraints.max_increment);
-
-            return {tAccel, tConstVel, tDecel};
+            TrapezoidalProfileTimes<DurationType, ElapsedTimeType> times(tAccel, tConstVel, tDecel);
+            return times;
 
         }
         

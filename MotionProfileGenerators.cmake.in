@@ -5,5 +5,6 @@ set(MotionProfileGenerators_VERSION 1.0.0)
 set_and_check(MotionProfileGenerators_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
 #set_and_check(MotionProfileGenerators_SYSCONFIG_DIR "@PACKAGE_SYSCONFIG_INSTALL_DIR@")
 set_and_check(MotionProfileGenerators_LIB_INSTALL_DIR "@PACKAGE_LIB_INSTALL_DIR@")
+set_and_check(MotionProfileGenerators_LIBS "@PACKAGE_LIBS@")
 
 check_required_components(MotionProfileGenerators)

@@ -24,155 +24,154 @@ namespace motion_profile_generators
 
     namespace scurve_profile
     {
-        template <typename T, typename DurationType = std::ratio<1>>
-        struct SCurveProfileTimes : public ProfileTimes<T, DurationType>
+        template <typename DurationType, typename ElapsedTimeType = std::ratio<1>>
+        struct SCurveProfileTimes : public ProfileTimes<DurationType, ElapsedTimeType>
         {
 
         public:
             SCurveProfileTimes();
 
             SCurveProfileTimes(
-                T t_1,
-                T t_2,
-                T t_3,
-                T t_4,
-                T t_5,
-                T t_6,
-                T t_7);
+                DurationType t_1,
+                DurationType t_2,
+                DurationType t_3,
+                DurationType t_4,
+                DurationType t_5,
+                DurationType t_6,
+                DurationType t_7);
 
-            const T getT1() const
+            const DurationType getT1() const
             {
                 return T1.count();
             }
 
-            const T getT2() const
+            const DurationType getT2() const
             {
                 return T2.count();
             }
 
-            const T getT3() const
+            const DurationType getT3() const
             {
                 return T3.count();
             }
 
-            const T getT4() const
+            const DurationType getT4() const
             {
                 return T4.count();
             }
 
-            const T getT5() const
+            const DurationType getT5() const
             {
                 return T5.count();
             }
 
-            const T getT6() const
+            const DurationType getT6() const
             {
                 return T6.count();
             }
 
-            const T getT7() const
+            const DurationType getT7() const
             {
                 return T7.count();
             }
 
-            const T gett1() const
+            const DurationType gett1() const
             {
                 return t1;
             }
 
-            const T gett2() const
+            const DurationType gett2() const
             {
                 return t2;
             }
 
-            const T gett3() const
+            const DurationType gett3() const
             {
                 return t3;
             }
 
-            const T gett4() const
+            const DurationType gett4() const
             {
                 return t4;
             }
 
-            const T gett5() const
+            const DurationType gett5() const
             {
                 return t5;
             }
 
-            const T gett6() const
+            const DurationType gett6() const
             {
                 return t6;
             }
 
-            const T gett7() const
+            const DurationType gett7() const
             {
                 return t7;
             }
 
-            const T getTa() const
+            const DurationType getTa() const
             {
                 return ta;
             }
 
-            const T getTj() const
+            const DurationType getTj() const
             {
                 return tj;
             }
 
-            const T getTv() const
+            const DurationType getTv() const
             {
                 return tv;
             }
 
         private:
-            std::chrono::duration<T, DurationType> T1;
-            std::chrono::duration<T, DurationType> T2;
-            std::chrono::duration<T, DurationType> T3;
-            std::chrono::duration<T, DurationType> T4;
-            std::chrono::duration<T, DurationType> T5;
-            std::chrono::duration<T, DurationType> T6;
-            std::chrono::duration<T, DurationType> T7;
+            std::chrono::duration<DurationType, ElapsedTimeType> T1;
+            std::chrono::duration<DurationType, ElapsedTimeType> T2;
+            std::chrono::duration<DurationType, ElapsedTimeType> T3;
+            std::chrono::duration<DurationType, ElapsedTimeType> T4;
+            std::chrono::duration<DurationType, ElapsedTimeType> T5;
+            std::chrono::duration<DurationType, ElapsedTimeType> T6;
+            std::chrono::duration<DurationType, ElapsedTimeType> T7;
 
 
-            T t1;
-            T t2;
-            T t3;
-            T t4;
-            T t5;
-            T t6;
-            T t7;
+            DurationType t1;
+            DurationType t2;
+            DurationType t3;
+            DurationType t4;
+            DurationType t5;
+            DurationType t6;
+            DurationType t7;
 
-            T ta;
-            T tj;
-            T tv;
+            DurationType ta;
+            DurationType tj;
+            DurationType tv;
             
         };
 
-        template <typename T, typename DurationType>
-        SCurveProfileTimes<T, DurationType>::SCurveProfileTimes()
-            : ProfileTimes<T, DurationType>()
+        template <typename DurationType, typename ElapsedTimeType>
+        SCurveProfileTimes<DurationType, ElapsedTimeType>::SCurveProfileTimes()
         {
         }
 
-        template <typename T, typename DurationType>
-        SCurveProfileTimes<T, DurationType>::SCurveProfileTimes(
-            T t_1,
-            T t_2,
-            T t_3,
-            T t_4,
-            T t_5,
-            T t_6,
-            T t_7)
-            : ProfileTimes<T, DurationType>()
+        template <typename DurationType, typename ElapsedTimeType>
+        SCurveProfileTimes<DurationType, ElapsedTimeType>::SCurveProfileTimes(
+            DurationType t_1,
+            DurationType t_2,
+            DurationType t_3,
+            DurationType t_4,
+            DurationType t_5,
+            DurationType t_6,
+            DurationType t_7)
+            : ProfileTimes<DurationType, ElapsedTimeType>()
         {
-            T1 = std::chrono::duration<T, DurationType>(t_1);
-            T2 = std::chrono::duration<T, DurationType>(t_2);
-            T3 = std::chrono::duration<T, DurationType>(t_3);
-            T4 = std::chrono::duration<T, DurationType>(t_4);
-            T5 = std::chrono::duration<T, DurationType>(t_5);
-            T6 = std::chrono::duration<T, DurationType>(t_6);
-            T7 = std::chrono::duration<T, DurationType>(t_7);
+            T1 = std::chrono::duration<DurationType, ElapsedTimeType>(t_1);
+            T2 = std::chrono::duration<DurationType, ElapsedTimeType>(t_2);
+            T3 = std::chrono::duration<DurationType, ElapsedTimeType>(t_3);
+            T4 = std::chrono::duration<DurationType, ElapsedTimeType>(t_4);
+            T5 = std::chrono::duration<DurationType, ElapsedTimeType>(t_5);
+            T6 = std::chrono::duration<DurationType, ElapsedTimeType>(t_6);
+            T7 = std::chrono::duration<DurationType, ElapsedTimeType>(t_7);
 
             this->totalTime = T1 + T2 + T3 + T4 + T5 + T6 + T7;
 
