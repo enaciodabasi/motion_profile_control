@@ -95,10 +95,6 @@ TEST(TriangularMotionProfileTest, FloatingPointReferenceTest)
 /*             std::cout << distanceTraveledViaReferences << std::endl;
  */                 
 }
-        else
-        {
-            break;
-        }
 
         
         

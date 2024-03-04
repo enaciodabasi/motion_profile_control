@@ -114,6 +114,63 @@ struct MotionConstraints
     }
 };
 
+/**
+ * @brief Template struct that holds the values of initial profile information such as initial position and velocity. 
+ * 
+ * @tparam T 
+ */
+template<typename T>
+struct InitialMotionInfo
+{
+    public:
+
+    InitialMotionInfo()
+    {
+
+    }
+
+    InitialMotionInfo
+    (
+        T initial_pos,
+        T initial_vel,
+        T initial_acc = (T)0.0,
+        T initial_jerk = (T)0.0
+    )
+    {
+        initialPosition = initial_pos;
+        initialVelocity = initial_vel;
+        initialAcceleration = initial_acc;
+        initialJerk = initial_jerk;
+    }
+
+    const T getInitialPosition() const
+    {
+        return position;
+    }
+
+    const T getInitialVelocity() const
+    {
+        return velocity;
+    }
+
+    const T getInitialAcceleration() const
+    {
+        return acceleration;
+    }
+
+    const T getInitialJerk() const
+    {
+        return jerk;
+    }
+
+    private:
+
+    T initialPosition;
+    T initialVelocity;
+    T initialAcceleration;
+    T initialJerk;
+};
+
 
 /* using TimePoint = std::variant<std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::steady_clock>>;
  */
