@@ -42,5 +42,10 @@ cmake --build . --target install
 
 cd ..
 cd ./test
-cmake .
+if [ -d ./build ]; then
+    rm -rf ./build
+fi
+mkdir build
+cd build
+cmake ..
 cmake --build . --target install

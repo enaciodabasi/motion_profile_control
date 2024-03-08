@@ -43,9 +43,9 @@ namespace motion_profile_generators
             {
 
                 
-                other.accelerationTime = decltype(accelerationTime)();
-                other.decelerationTime = decltype(decelerationTime)();
-                other.totalTime = decltype(this->totalTime)();
+                this->accelerationTime = other.accelerationTime;
+                this->decelerationTime = other.decelerationTime;
+                this->totalTime = other.totalTime;
             }
 
             const DurationType getAccelerationDuration() const
@@ -110,7 +110,6 @@ namespace motion_profile_generators
 
             std::chrono::duration<DurationType, ElapsedTimeType>  accel_time = std::chrono::duration<DurationType, ElapsedTimeType>(timeToReachMaxVel / 2.0);
             std::chrono::duration<DurationType, ElapsedTimeType>  decel_time = accel_time;
-
             motion_constraints.max_increment = motion_constraints.acceleration * (timeToReachMaxVel / (DurationType)2.0);
 
             return TriangularProfileTimes<DurationType>(accel_time, decel_time);

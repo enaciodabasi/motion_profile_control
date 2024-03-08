@@ -141,7 +141,7 @@ namespace motion_profile_generators
             // Calculate displacements:
             ReferenceType dAcc = 0.5*motion_constraints.acceleration*(tAccel.count() * tAccel.count());
             ReferenceType dDec = 0.5*motion_constraints.deacceleration*(tDecel.count() * tDecel.count());
-
+            std::cout << tAccel.count() << " " << tDecel.count() << std::endl;
             ReferenceType dConstVel = target_value - (dAcc + dDec); 
 
             if(dConstVel <= 0)
@@ -150,6 +150,7 @@ namespace motion_profile_generators
             }
 
             std::chrono::duration<DurationType, ElapsedTimeType> tConstVel = std::chrono::duration<DurationType, ElapsedTimeType>(dConstVel / motion_constraints.max_increment);
+            std::cout << tConstVel.count() << std::endl;
             TrapezoidalProfileTimes<DurationType, ElapsedTimeType> times(tAccel, tConstVel, tDecel);
             return times;
 

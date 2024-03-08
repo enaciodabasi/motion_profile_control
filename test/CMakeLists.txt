@@ -20,5 +20,4 @@ target_include_directories(controller_test PUBLIC ${GTEST_INCLUDE_DIRS} ${motion
 install(
     TARGETS
     controller_test
-    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/../build
 )

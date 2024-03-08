@@ -64,8 +64,12 @@ public:
         
         if(!m_CurrentProfileInformation.m_CurrentProfileTimes)
         {
+            std::cout << "Can not calculate profile time" << std::endl;
             return false;
         }
+
+        m_CurrentProfileInformation.m_CurrentProfileStartTime = std::chrono::high_resolution_clock::now();
+        m_CurrentProfileInformation.m_PreviousControlLoopUpdateTime = std::chrono::high_resolution_clock::now();
 
         return true;
     }
@@ -79,10 +83,13 @@ public:
         case MotionProfileType::Triangular:
         {
             using namespace motion_profile_generators::triangular_profile;
-            TriangularProfileTimes times = calculateTriangularOperationTimes<DurationType, ReferenceType, ElapsedTimeType>(
+            TriangularProfileTimes<DurationType, ElapsedTimeType> times = calculateTriangularOperationTimes<DurationType, ReferenceType, ElapsedTimeType>(
                 target,
                 m_CurrentMotionConstraints
             );
+
+            std::cout << times.getAccelerationDuration() << std::endl;
+
                                   
             return std::unique_ptr<TriangularProfileTimes<DurationType, ElapsedTimeType>>(new TriangularProfileTimes<DurationType, ElapsedTimeType>(std::move(times)));
         }
@@ -100,13 +107,14 @@ public:
             {
                 
                 using namespace motion_profile_generators::triangular_profile;
-                auto newProfileTimes = calculateTriangularOperationTimes<ReferenceType, DurationType, ElapsedTimeType>(
+                TriangularProfileTimes<DurationType, ElapsedTimeType> newProfileTimes = calculateTriangularOperationTimes<ReferenceType, DurationType, ElapsedTimeType>(
                     target,
                     m_CurrentMotionConstraints
                 );
 
                 m_CurrentMotionProfileType = MotionProfileType::Triangular;
-
+                std::cout << newProfileTimes.getAccelerationDuration() << std::endl;
+                
                 return std::unique_ptr<TriangularProfileTimes<DurationType, ElapsedTimeType>>(new TriangularProfileTimes<DurationType, ElapsedTimeType>(std::move(newProfileTimes)));
             }
 
@@ -143,7 +151,7 @@ public:
                 m_CurrentProfileInformation.m_PreviousReference,
                 target, 
                 m_CurrentMotionConstraints, 
-                *m_CurrentProfileInformation.m_CurrentProfileTimes,
+                *dynamic_cast<motion_profile_generators::triangular_profile::TriangularProfileTimes<double>*>(m_CurrentProfileInformation.m_CurrentProfileTimes.get()) ,
                 m_CurrentProfileInformation.m_PreviousControlLoopUpdateTime,
                 m_CurrentProfileInformation.m_CurrentProfileStartTime
             );
@@ -157,7 +165,7 @@ public:
                 m_CurrentProfileInformation.m_PreviousReference,
                 target,
                 m_CurrentMotionConstraints,
-                *m_CurrentProfileInformation.m_CurrentProfileTimes,
+                *dynamic_cast<motion_profile_generators::trapezoidal_profile::TrapezoidalProfileTimes<double>*>(m_CurrentProfileInformation.m_CurrentProfileTimes.get()),
                 m_CurrentProfileInformation.m_PreviousControlLoopUpdateTime,
                 m_CurrentProfileInformation.m_CurrentProfileStartTime
             );
@@ -172,7 +180,7 @@ public:
                 m_CurrentProfileInformation.m_PreviousReference,
                 target,
                 m_CurrentMotionConstraints,
-                *m_CurrentProfileInformation.m_CurrentProfileTimes,
+                *dynamic_cast<motion_profile_generators::scurve_profile::SCurveProfileTimes<double>*>(m_CurrentProfileInformation.m_CurrentProfileTimes.get()),
                 m_CurrentProfileInformation.m_PreviousControlLoopUpdateTime,
                 m_CurrentProfileInformation.m_CurrentProfileStartTime
             );
@@ -185,6 +193,10 @@ public:
             break;
         }
 
+        if(newRef)
+        {
+            m_CurrentProfileInformation.m_PreviousReference = newRef.value();
+        }
         return newRef;
     }
 
