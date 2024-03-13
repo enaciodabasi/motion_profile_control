@@ -136,11 +136,11 @@ namespace motion_profile_generators
         {
             // Calculate required times for acceleration and deceleration.
             std::chrono::duration<DurationType, ElapsedTimeType> tAccel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.max_increment / motion_constraints.acceleration);
-            std::chrono::duration<DurationType, ElapsedTimeType> tDecel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.max_increment / motion_constraints.deacceleration);
+            std::chrono::duration<DurationType, ElapsedTimeType> tDecel = std::chrono::duration<DurationType, ElapsedTimeType>(motion_constraints.max_increment / std::abs(motion_constraints.deacceleration));
 
             // Calculate displacements:
             ReferenceType dAcc = 0.5*motion_constraints.acceleration*(tAccel.count() * tAccel.count());
-            ReferenceType dDec = 0.5*motion_constraints.deacceleration*(tDecel.count() * tDecel.count());
+            ReferenceType dDec = 0.5*std::abs(motion_constraints.deacceleration)*(tDecel.count() * tDecel.count());
             std::cout << tAccel.count() << " " << tDecel.count() << std::endl;
             ReferenceType dConstVel = target_value - (dAcc + dDec); 
 
@@ -217,7 +217,7 @@ namespace motion_profile_generators
             {
                 double decDur = timeElapsedSinceProfileStarted - (times.getAccelerationDuration() + times.getConstantVelocityDuration());
                 newReference.position = dConstVel + (decDur * motion_constraints.max_increment) - (0.5 * motion_constraints.acceleration * (decDur * decDur));
-                newReference.velocity = previous_reference.velocity - (motion_constraints.deacceleration * elapsedTime);
+                newReference.velocity = previous_reference.velocity - (std::abs(motion_constraints.deacceleration) * elapsedTime);
                 newReference.acceleration = -motion_constraints.acceleration;
 /*                 newReference.position = ((times.getTotalTime() - times.getDecelerationTime()) * motion_constraints.max_increment * 0.5) - ((times.getTotalTime() - timeElapsedSinceProfileStarted) * (motion_constraints.max_increment - (timeElapsedSinceProfileStarted - times.getDecelerationTime())) * 0.5);
  */            } 
