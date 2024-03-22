@@ -18,7 +18,13 @@
 template<typename T>
 bool inRange(T current, T target, T tolerance)
 {
-    return ((current + tolerance >= target || current - tolerance <= target) ? true : false);
+    return ((current >= target - tolerance && current <= target + tolerance) ? true : false);
+}
+
+template<typename T>
+int sign_fnc(const T& val)
+{
+    return (T(0) < val) - (val < T(0));
 }
 
 template<typename DurationType, class ClockType, class ElapsedTimeType>

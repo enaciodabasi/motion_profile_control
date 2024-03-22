@@ -73,6 +73,7 @@ struct ProfileTimes
 template<typename ReferenceType>
 struct MotionProfileReference
 {
+    public:
     
     ReferenceType position;
     
@@ -87,11 +88,22 @@ struct MotionProfileReference
         acceleration = (ReferenceType)0.0;
     }
 
+    MotionProfileReference<ReferenceType> operator*(const ReferenceType multiplier)
+    {
+        this->velocity *= multiplier;
+        this->position *= multiplier;
+        this->acceleration *= multiplier;
+
+        return *this;
+    }
+
 };
 
 template<typename T>
 struct MotionConstraints
 {
+    public:
+
     T max_increment;
     T acceleration;
     T deacceleration;
@@ -111,6 +123,16 @@ struct MotionConstraints
         this->acceleration = acc;
         this->deacceleration = decc;
         this->jerk = jrk;
+    }
+
+    MotionConstraints<T>& operator*(const T multiplier)
+    {
+        /* this-> */acceleration *= multiplier;
+        /* this-> */deacceleration *= multiplier;
+        /* this-> */jerk *= multiplier;
+        /* this-> */max_increment *= multiplier;
+
+        return *this;
     }
 };
 
