@@ -102,13 +102,17 @@ namespace motion_profile_generators
             MotionConstraints<ControlValueType>& motion_constraints
         )
         {
+            
             //maximum_velocity = std::sqrt(
             //    std::abs(target_value) / maximum_acceleration
             //s);
+            
+            /* motion_constraints.max_increment = std::sqrt(std::abs(target_value) * motion_constraints.acceleration);
+            auto timeToReachMaxVel = motion_constraints.max_increment / motion_constraints.acceleration; */
+            // 1/2 * a * t * t = d --> (d * 2) / a = t^2 --> sqrt(d*2/a) = t;
+            auto timeToReachMaxVel = std::sqrt(std::abs(target_value) / motion_constraints.acceleration);
 
-            auto timeToReachMaxVel = std::sqrt((2.0 * target_value) / motion_constraints.acceleration);
-
-            std::chrono::duration<DurationType, ElapsedTimeType>  accel_time = std::chrono::duration<DurationType, ElapsedTimeType>(timeToReachMaxVel / 2.0);
+            std::chrono::duration<DurationType, ElapsedTimeType>  accel_time = std::chrono::duration<DurationType, ElapsedTimeType>(timeToReachMaxVel);
             std::chrono::duration<DurationType, ElapsedTimeType>  decel_time = accel_time;
             motion_constraints.max_increment = motion_constraints.acceleration * (timeToReachMaxVel / (DurationType)2.0);
 
@@ -145,27 +149,35 @@ namespace motion_profile_generators
             std::chrono::duration<DurationType> timeElapsedSinceProfileStartedDur = calculateElapsedTime<DurationType, ClockType, ElapsedTimeType>(profileStartTimeCp);
         
             const double elapsedTime = static_cast<DurationType>(elapsedTimeDur.count());
-            
+            /* std::cout << "Elapsed time: " << elapsedTime << std::endl; */
             const DurationType timeElapsedSinceProfileStarted = timeElapsedSinceProfileStartedDur.count();
-
+            
             if(timeElapsedSinceProfileStarted >= times.getTotalTime()){
                 std::cout << "Elapsed time " << timeElapsedSinceProfileStarted << " is larget than the target profile time " << times.getTotalTime() << std::endl;
                 return std::nullopt;
             }
             MotionProfileReference<ReferenceType> newReference;
-            if(timeElapsedSinceProfileStarted <= times.getAccelerationDuration()){
+            /* if(timeElapsedSinceProfileStarted <= times.getAccelerationDuration()){
                 newReference.velocity = previous_references.velocity + (motion_constraints.acceleration * elapsedTime);
                 newReference.position = 0.5 * (motion_constraints.acceleration * std::pow(timeElapsedSinceProfileStarted , 2));
 
             }
             else if(timeElapsedSinceProfileStarted > times.getDecelerationTime()){
                 newReference.velocity = previous_references.velocity - (motion_constraints.acceleration * elapsedTime);
-                /* newReference.position = ((0.5 * (motion_constraints.acceleration * std::pow(((DurationType)times.getTotalTime() - timeElapsedSinceProfileStarted), 2)))); */
                 newReference.position = (0.5 * motion_constraints.acceleration * std::pow(timeElapsedSinceProfileStarted, 2));
-                /* newReference.position = previous_references.position + (motion_constraints.increment * elapsedTime) + (0.5 * (-motion_constraints.acceleration * std::pow(elapsedTime, 2))); */
+            } */
+            const auto directionMultiplier = sign_fnc(target);
+            if(timeElapsedSinceProfileStarted <= times.getAccelerationDuration()){
+                newReference.velocity = std::abs(previous_references.velocity) + (motion_constraints.acceleration * elapsedTime);
+                newReference.position = 0.5 * (motion_constraints.acceleration * std::pow(timeElapsedSinceProfileStarted , 2));
+
+            }
+            else if(timeElapsedSinceProfileStarted > times.getDecelerationTime()){
+                newReference.velocity = std::abs(previous_references.velocity) - (motion_constraints.acceleration * elapsedTime);
+                newReference.position = (0.5 * motion_constraints.acceleration * std::pow(timeElapsedSinceProfileStarted, 2));
             }
 
-            return newReference;
+            return newReference * (directionMultiplier);
 
         }
         

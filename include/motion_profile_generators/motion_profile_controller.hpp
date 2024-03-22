@@ -113,7 +113,6 @@ public:
                 );
 
                 m_CurrentMotionProfileType = MotionProfileType::Triangular;
-                std::cout << newProfileTimes.getAccelerationDuration() << std::endl;
                 
                 return std::unique_ptr<TriangularProfileTimes<DurationType, ElapsedTimeType>>(new TriangularProfileTimes<DurationType, ElapsedTimeType>(std::move(newProfileTimes)));
             }
@@ -200,6 +199,17 @@ public:
         return newRef;
     }
 
+    const DurationType getElapsedTime() const
+    {
+        return 0.0;
+    }
+
+    bool reset()
+    {
+        m_CurrentProfileInformation.reset();
+        return true;
+    }
+
 /*     const DurationType getLoopPeriod() const
     {
         
@@ -235,8 +245,6 @@ public:
     MotionConstraints<ReferenceType> m_CurrentMotionConstraints;
 
     bool m_IsProfileActive = false;
-
-    void reset();
 
 };
 
