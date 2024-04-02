@@ -96,7 +96,7 @@ namespace motion_profile_generators
          * @param maximum_acceleration 
          * @return TriangularProfileTimes<DurationType> 
          */
-        template<typename DurationType, typename ControlValueType, typename ElapsedTimeType = std::ratio<1>>
+        template<typename ControlValueType, typename DurationType, typename ElapsedTimeType = std::ratio<1>>
         TriangularProfileTimes<DurationType, ElapsedTimeType> calculateTriangularOperationTimes(
             ControlValueType target_value,
             MotionConstraints<ControlValueType>& motion_constraints
@@ -118,6 +118,22 @@ namespace motion_profile_generators
 
             return TriangularProfileTimes<DurationType>(accel_time, decel_time);
 
+        }
+
+        template<typename ControlValueType, typename DurationType, typename ElapsedTimeType = std::ratio<1>>
+        TriangularProfileTimes<DurationType, ElapsedTimeType> calculateTriangularOperationTimes(
+            const ControlValueType target_value,
+            const DurationType target_duration,
+            MotionConstraints<ControlValueType>& motion_constraints
+        )
+        {
+            DurationType ta, td = target_duration / (DurationType)2.0;
+            motion_constraints.max_increment  = target_value / ta;
+
+            std::chrono::duration<DurationType, ElapsedTimeType> accel_time(ta);
+            std::chrono::duration<DurationType, ElapsedTimeType> decel_time(td);
+
+            return TriangularProfileTimes<DurationType>(accel_time, decel_time);
         }
         
 

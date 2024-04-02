@@ -125,14 +125,33 @@ struct MotionConstraints
         this->jerk = jrk;
     }
 
-    MotionConstraints<T>& operator*(const T multiplier)
+   /*  MotionConstraints<T>& operator*(const T multiplier)
     {
-        /* this-> */acceleration *= multiplier;
-        /* this-> */deacceleration *= multiplier;
-        /* this-> */jerk *= multiplier;
-        /* this-> */max_increment *= multiplier;
+        acceleration *= multiplier;
+        deacceleration *= multiplier;
+        jerk *= multiplier;
+        max_increment *= multiplier;
 
         return *this;
+    } */
+
+    /* void operator*(const T& multiplier)
+    {
+        acceleration *= multiplier;
+        deacceleration *= multiplier;
+        jerk *= multiplier;
+        max_increment *= multiplier;
+    } */
+
+    MotionConstraints<T> operator*(const T multiplier)
+    {   
+        auto alteredV = *this;
+        alteredV.acceleration *= multiplier;
+        alteredV.deacceleration *= multiplier;
+        alteredV.jerk *= multiplier;
+        alteredV.max_increment *= multiplier;
+        
+        return alteredV;
     }
 };
 

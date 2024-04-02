@@ -140,26 +140,56 @@ namespace motion_profile_generators
 
             // Calculate displacements:
             ReferenceType dAcc = 0.5*motion_constraints.max_increment*tAccel.count();
-            std::cout <<"Max increment: " << motion_constraints.max_increment << std::endl;
-            std::cout << "acc: " << motion_constraints.acceleration << std::endl;
+/*             std::cout <<"Max increment: " << motion_constraints.max_increment << std::endl;
+            std::cout << "acc: " << motion_constraints.acceleration << std::endl; */
             ReferenceType dDec = 0.5*motion_constraints.max_increment*tDecel.count();
-            std::cout << tAccel.count() << " " << tDecel.count() << std::endl;
+            /* std::cout << tAccel.count() << " " << tDecel.count() << std::endl; */
             ReferenceType dConstVel = std::abs(target_value) - (dAcc + dDec); 
-            std::cout << "Const Vel distance: " << dConstVel << std::endl;
+            /* std::cout << "Const Vel distance: " << dConstVel << std::endl; */
             if(dConstVel <= 0)
             {
                 return std::nullopt;
             }
 
             std::chrono::duration<DurationType, ElapsedTimeType> tConstVel = std::chrono::duration<DurationType, ElapsedTimeType>(dConstVel / motion_constraints.max_increment);
-            std::cout << tConstVel.count() << std::endl;
+            /* std::cout << tConstVel.count() << std::endl; */
             TrapezoidalProfileTimes<DurationType, ElapsedTimeType> times(tAccel, tConstVel, tDecel);
             return times;
 
-        }
+        }   
 
-        template<typename ReferenceType = double, typename DurationType = double, class ElapsedTimeType = std::ratio<1>>
-               
+        template<typename ReferenceType, typename DurationType, class ElapsedTimeType = std::ratio<1>>
+        std::optional<MotionProfileReference<ReferenceType>> calculateTrapeozidalOperationsTimes(
+            const ReferenceType target_value,
+            const DurationType target_duration,
+            MotionConstraints<ReferenceType>& motion_constraints
+        )
+        {
+            //ReferenceType avgVelocity = target_value / (DurationType)target_duration;
+            /*
+                Calculating profile with the Third Rule:
+                Ta, Tc, Td = Tt / 3
+            */
+            DurationType ta, tc, td = target_duration / (DurationType)3.0;
+            ReferenceType newMaxVelocity = target_value / (ta + tc);
+            ReferenceType newMaxAccel = newMaxVelocity / ta;
+
+            if(newMaxVelocity >= motion_constraints.max_increment || newMaxAccel >= motion_constraints.acceleration || (-1.0 * newMaxAccel) <= motion_constraints.deacceleration)
+            {
+
+            }
+            
+            ReferenceType dAcc, dDec = ReferenceType(0.5 * newMaxVelocity * ta);
+
+            if(target_value <= dAcc + dDec)
+            {
+                return std::nullopt;
+            }
+
+            TrapezoidalProfileTimes<DurationType, ElapsedTimeType> times(ta, tc, td);
+            return times;
+        }   
+
         /**
          * @brief 
          * 

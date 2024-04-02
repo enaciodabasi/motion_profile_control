@@ -240,6 +240,16 @@ namespace motion_profile_generators
                 t1, t2, t3, t4, t5, t6, t7);
         }
 
+        template <typename DurationType, typename ControlValueType, typename ElapsedTimeType = std::ratio<1>>
+        SCurveProfileTimes<DurationType> calculateSCurveOperationTimes(
+            const ControlValueType target_value,
+            const DurationType target_duration,
+            MotionConstraints<ControlValueType> &motion_constraints)
+        {
+
+        }   
+
+
         template <typename ReferenceType, typename DurationType, class ClockType = std::chrono::high_resolution_clock, class ElapsedTimeType = std::ratio<1>>
         std::optional<MotionProfileReference<ReferenceType>> generateReference(
             MotionProfileReference<ReferenceType> &previous_references,
